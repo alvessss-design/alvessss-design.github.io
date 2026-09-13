@@ -1,0 +1,55 @@
+---
+import {ui,site,type Lang} from '../data/content';
+interface Props{lang:Lang}
+const {lang}=Astro.props;
+const t=ui[lang];
+const labels=lang==='pt'
+  ?{email:'E-mail',phone:'Telefone / WhatsApp',index:'Navegação',networks:'Redes',home:'Início',signature:'Direção criativa, imagem & movimento'}
+  :{email:'Email',phone:'Phone / WhatsApp',index:'Index',networks:'Elsewhere',home:'Home',signature:'Creative direction, imagery & motion'};
+---
+<section id="contact" class="section contact" data-theme="dark">
+  <div class="contact-intro">
+    <span class="eyebrow">03 / {lang==='pt'?'Contato':'Contact'}</span>
+    <h2>{t.contact}</h2>
+  </div>
+  <div class="contact-methods">
+    <a class="contact-band" href={`mailto:${site.email}`} aria-label={`${labels.email}: ${site.email}`}>
+      <span class="eyebrow">{labels.email}</span>
+      <span class="contact-value contact-email">{site.email}</span>
+      <span class="contact-band-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+    </a>
+    <a class="contact-band" href={`https://wa.me/${site.whatsapp}`} target="_blank" rel="noopener noreferrer" aria-label={`${labels.phone}: ${site.phone}`}>
+      <span class="eyebrow">WhatsApp</span>
+      <span class="contact-value contact-phone">{site.phone}</span>
+      <span class="contact-band-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+    </a>
+  </div>
+</section>
+<footer class="site-footer">
+  <div class="footer-grid">
+    <a class="footer-brand" href="#top" aria-label={`KARU — ${t.top}`}>KARU</a>
+    <nav class="footer-column" aria-label={labels.index}>
+      <span class="eyebrow">{labels.index}</span>
+      <a href="#top">{labels.home}</a>
+      <a href="#work">{t.works}</a>
+      <a href="#about">{t.about}</a>
+      <a href="#contact">{t.contact}</a>
+    </nav>
+    <div class="footer-column">
+      <span class="eyebrow">{t.contact}</span>
+      <a href={`mailto:${site.email}`}>{site.email}</a>
+      <a href={`https://wa.me/${site.whatsapp}`} target="_blank" rel="noopener noreferrer">{site.phone}</a>
+    </div>
+    <div class="footer-column">
+      <span class="eyebrow">{labels.networks}</span>
+      {site.socials.map(s=>s.url
+        ?<a href={s.url} target="_blank" rel="noopener noreferrer">{s.name} ↗</a>
+        :<span>{s.name}<small>{t.pending}</small></span>)}
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© {site.year} KARU</span>
+    <span>{labels.signature}</span>
+    <a href="#top">{t.top} ↑</a>
+  </div>
+</footer>

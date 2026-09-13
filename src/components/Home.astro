@@ -1,0 +1,34 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from './Header.astro';
+import Contact from './Contact.astro';
+import Media from './Media.astro';
+import {ui,site,projectPath,type Lang} from '../data/content';
+import {projects} from '../data/projects';
+import {projectVideoPath} from '../data/media';
+interface Props{lang:Lang}const {lang}=Astro.props;const t=ui[lang];const heroVideo='/videos/hero-cinematic.mp4';
+---
+<Layout lang={lang}>
+<Header lang={lang} home/>
+<main id="main">
+<section class="hero" id="top" data-theme="dark" data-cinematic-intro>
+  <div class="hero-frame">
+    <span class="frame-corner frame-corner-tl" aria-hidden="true"></span>
+    <span class="frame-corner frame-corner-tr" aria-hidden="true"></span>
+    <span class="frame-corner frame-corner-bl" aria-hidden="true"></span>
+    <span class="frame-corner frame-corner-br" aria-hidden="true"></span>
+    <div class="hero-stage"><Media src={site.hero.poster} video={heroVideo} priority class="hero-art" controls={false}/></div>
+    <div class="hero-copy"><h1><span class="hero-line hero-line-top">{t.headline[0]}</span><span class="hero-line hero-line-bottom">{t.headline[1]}</span></h1></div>
+  </div>
+</section>
+<section class="section work" id="work" data-theme="dark">
+  <div class="section-heading"><div><span class="eyebrow work-label">01 / {lang==='pt'?'Portfólio':'Portfolio'}</span><h2>{t.selected}<sup> (03)</sup></h2></div><p class="eyebrow">{t.selection}</p></div>
+  <div class="project-grid">{projects.map((p,i)=>{const previewVideo=p.video||projectVideoPath(p.slug);return <a href={projectPath(lang,p.slug)} class:list={['project-card',{'featured':i===0}]} aria-label={`${p.title} — ${p.copy[lang].discipline}`}><div class="project-image" style={`view-transition-name:project-${p.slug}`}><Media src={p.image} alt={p.copy[lang].alt} video={previewVideo} controls={false}/><span class="project-number eyebrow">K—00{p.number.slice(-1)}</span><span class="project-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg></span></div><div class="project-info"><h3>{p.title}</h3><span class="eyebrow">{p.number} / {p.copy[lang].discipline}</span></div></a>})}</div>
+</section>
+<section class="section about" id="about" data-theme="light">
+  <div class="eyebrow about-label">02 / {t.aboutTag}</div><h2>{t.aboutHeadline[0]}<br/>{t.aboutHeadline[1]}</h2>
+  <div class="about-grid"><figure class="portrait">{site.portrait?<img src={site.portrait} alt="KARU" loading="lazy" width="720" height="900"/>:<div class="portrait-art" role="img" aria-label={t.portrait}><div class="portrait-orbit" aria-hidden="true"></div><span class="eyebrow">K / {t.portrait}</span><span class="portrait-symbol" aria-hidden="true">K</span></div>}<figcaption class="eyebrow">{t.draftBio} / KARU</figcaption></figure><div class="about-copy"><p class="bio">{t.bio}</p><ul class="disciplines">{t.disciplines.map((d,i)=><li><span class="eyebrow">0{i+1}</span>{d}<span aria-hidden="true">↗</span></li>)}</ul><div class="about-bottom"><p class="eyebrow">{t.location}</p><a class="text-link" href="#contact">{t.contact} ↗</a></div></div></div>
+</section>
+<Contact lang={lang}/>
+</main>
+</Layout>

@@ -1,0 +1,8 @@
+---
+import Case from '../../../components/Case.astro';
+import {projects} from '../../../data/projects';
+import type {Lang} from '../../../data/content';
+export function getStaticPaths(){return (['pt','en'] as const).flatMap(lang=>projects.map(project=>({params:{lang,collection:lang==='pt'?'trabalhos':'works',slug:project.slug},props:{project}})))}
+const lang=Astro.params.lang as Lang;const {project}=Astro.props;
+---
+<Case lang={lang} project={project}/>

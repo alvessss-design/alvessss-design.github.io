@@ -1,0 +1,8 @@
+# Prompts dos visuais demonstrativos
+
+Ferramenta: imagegen nativa. Originais PNG convertidos para WebP em 1672 e 720 px. Assets finais em `public/images/`.
+
+1. Synthetic Memory: monumental folded silver/chrome sculptural ribbon on black volcanic sand, atmospheric mist, cinematic warm ivory light, black/cream palette, highly tactile art film still. Landscape 16:9, wide cinematic shot, sculptural form fully visible with breathing room. Polished and softly brushed chrome, granular volcanic sand, delicate mist. No text, logos, watermark or people.
+2. Chromatic Silence: translucent deep vermilion glass monolith in a warm ivory architectural space, long shadow, fine-art still life photograph. Landscape 16:9, carefully balanced wide composition and generous architectural negative space. Directional sunlight, luminous glass refraction, quiet cinematic atmosphere. No text, logos, watermark or people.
+3. Future Rituals: luminous pearl elliptical sculptural ring floating over dark water, subtle ripples, stark cinematic lighting, near monochrome. Landscape 16:9, sculptural ring fully visible, wide atmospheric frame. Smooth pearlescent surface, dark reflective water with delicate ripples. No text, logos, watermark or people.
+4. Hero KARU: original nocturnal cinematic close profile of an androgynous creative performer wearing sculptural translucent white eyewear and looking right. Abstract nighttime city or club with cyan, cobalt, violet, magenta and warm cream bokeh. Premium editorial cinematography, realistic live-action photography, analog grain, shallow depth of field and gentle motion blur. Wide 16:9 frame, subject centered toward the right and dark negative space on the left for typography. No text, logo, UI, border or watermark.

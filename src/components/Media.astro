@@ -1,0 +1,5 @@
+---
+interface Props{src:string;alt?:string;video?:string;priority?:boolean;class?:string;controls?:boolean}
+const {src,alt='',video='',priority=false,class:className='',controls=true}=Astro.props;
+---
+{video?<video class={className} src={video} poster={src} muted playsinline loop autoplay preload="metadata" controls={controls} data-video><track kind="captions"/></video>:<img class={className} src={src} srcset={`${src.replace('.webp','-small.webp')} 720w, ${src} 1672w`} sizes="(max-width: 650px) 100vw, 90vw" alt={alt} width="1672" height="941" loading={priority?'eager':'lazy'} fetchpriority={priority?'high':'auto'}/>}
