@@ -7,4 +7,17 @@ interface Props{lang?:Lang;title?:string;description?:string;alternate?:string;}
 const {lang='pt',title=ui[lang].seo,description=ui[lang].desc,alternate=lang==='pt'?'/en':'/pt'}=Astro.props;
 const t=ui[lang];const canonical=site.origin?new URL(Astro.url.pathname,site.origin):undefined;
 ---
-<!doctype html><html lang={lang==='pt'?'pt-BR':'en'}><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><link rel="icon" href="/favicon.svg" type="image/svg+xml"/><meta name="theme-color" content="#141411"/><title>{title}</title><meta name="description" content={description}/><meta name="robots" content={site.published?'index,follow':'noindex,nofollow'}/><meta property="og:title" content={title}/><meta property="og:description" content={description}/><meta property="og:type" content="website"/><meta property="og:locale" content={lang==='pt'?'pt_BR':'en_US'}/>{canonical&&<><link rel="canonical" href={canonical}/><meta property="og:url" content={canonical}/><link rel="alternate" hreflang={lang==='pt'?'pt-BR':'en'} href={canonical}/><link rel="alternate" hreflang={lang==='pt'?'en':'pt-BR'} href={new URL(alternate,site.origin)}/></>}</head><body><a class="skip" href="#main">{t.skip}</a><slot/><script>import '../scripts/interactions';</script></body></html>
+<!doctype html><html lang={lang==='pt'?'pt-BR':'en'}><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<script is:inline>
+  const syncViewportWidth=()=>document.documentElement.style.setProperty('--window-width',innerWidth+'px');
+  syncViewportWidth();addEventListener('resize',syncViewportWidth,{passive:true});
+  // Resolve a refresh before the browser restores an old anchor or scroll position.
+  if(/^\/(?:pt|en)\/?$/.test(location.pathname)&&performance.getEntriesByType('navigation')[0]?.type==='reload'){
+    history.scrollRestoration='manual';
+    const url=new URL(location.href);
+    url.hash='';url.searchParams.delete('return');
+    history.replaceState(history.state,'',url.pathname+url.search);
+    scrollTo(0,0);
+  }
+</script>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"/><meta name="theme-color" content="#141411"/><title>{title}</title><meta name="description" content={description}/><meta name="robots" content={site.published?'index,follow':'noindex,nofollow'}/><meta property="og:title" content={title}/><meta property="og:description" content={description}/><meta property="og:type" content="website"/><meta property="og:locale" content={lang==='pt'?'pt_BR':'en_US'}/>{canonical&&<><link rel="canonical" href={canonical}/><meta property="og:url" content={canonical}/><link rel="alternate" hreflang={lang==='pt'?'pt-BR':'en'} href={canonical}/><link rel="alternate" hreflang={lang==='pt'?'en':'pt-BR'} href={new URL(alternate,site.origin)}/></>}</head><body><a class="skip" href="#main">{t.skip}</a><slot/><script>import '../scripts/interactions';</script></body></html>

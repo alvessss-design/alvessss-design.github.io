@@ -39,7 +39,7 @@
 
 .site-header,
 .site-header[data-theme=light]{
-  padding-inline:max(var(--page-gutter),calc((100vw - var(--shell-max))/2));
+  padding-inline:max(var(--page-gutter),calc((var(--window-width,100vw) - var(--shell-max))/2));
   color:#fff;
   mix-blend-mode:difference;
   --nav-rest:rgba(255,255,255,.72);
@@ -71,7 +71,7 @@
 .site-header .languages a[aria-current=page],
 .site-header .nav-link:is(:hover,:focus-visible),
 .site-header .nav-link[aria-current=location]{color:var(--nav-active)}
-.scramble-slot{overflow:hidden;vertical-align:bottom}
+.scramble-slot{overflow:visible;vertical-align:bottom}
 
 .hero,
 .work,
@@ -197,46 +197,55 @@ footer{padding-inline:max(var(--page-gutter),calc((100vw - var(--shell-max))/2))
   .email{font-size:clamp(18px,5.1vw,24px);white-space:normal}
 }
 
-/* The opening behaves like a camera pulling back into the final composition. */
-body:has(.hero[data-cinematic-intro]){overflow-x:clip}
+/* The opening runs once on page entry; the static hero remains after it finishes. */
+body:has(.hero[data-intro-state="playing"]){overflow-x:clip;overflow-y:hidden}
+html:has(.hero){scrollbar-gutter:stable}
+html:has(.hero[data-intro-state="playing"]){overflow-y:hidden}
 @media(prefers-reduced-motion:no-preference){
-  .hero[data-cinematic-intro] .hero-stage{
-    animation:hero-stage-settle 1500ms cubic-bezier(.16,.78,.2,1) 700ms both;
+  .hero[data-intro-state="playing"] .hero-stage{
+    animation:hero-stage-settle 2400ms cubic-bezier(.45,0,.55,1) 1300ms both;
     will-change:inset,border-radius,filter;
   }
-  .hero[data-cinematic-intro] .hero-line{
-    opacity:0;
-    will-change:transform,clip-path,opacity;
+  .hero[data-intro-state="playing"] .hero-stage::after{
+    animation:hero-overlay-settle 2400ms cubic-bezier(.45,0,.55,1) 1300ms both;
   }
-  .hero[data-cinematic-intro] .hero-line-top{
-    animation:hero-line-left 1000ms cubic-bezier(.16,.78,.2,1) 2200ms both;
+  .hero[data-intro-state="playing"] .hero-line{
+    opacity:1;
+    clip-path:inset(0 100% 0 0);
+    will-change:clip-path;
   }
-  .hero[data-cinematic-intro] .hero-line-bottom{
-    animation:hero-line-right 1000ms cubic-bezier(.16,.78,.2,1) 2420ms both;
+  .hero[data-intro-state="playing"] .hero-line-bottom{clip-path:inset(0 0 0 100%)}
+  .hero[data-intro-state="playing"] .hero-line::after{
+    content:'';
+    position:absolute;
+    top:12%;
+    left:var(--type-caret-x,0px);
+    width:1px;
+    height:76%;
+    background:currentColor;
   }
-  .hero[data-cinematic-intro] .hero-frame::before,
-  .hero[data-cinematic-intro] .hero-frame::after{
+  .hero[data-intro-state="playing"] .hero-line:not([data-typing="active"])::after{display:none}
+  .hero[data-intro-state="playing"] .hero-frame::before,
+  .hero[data-intro-state="playing"] .hero-frame::after{
     transform:scaleX(0);
-    animation:hero-frame-line 760ms cubic-bezier(.32,.72,.2,1) 3260ms both;
   }
-  .hero[data-cinematic-intro] .hero-frame::before{transform-origin:left center}
-  .hero[data-cinematic-intro] .hero-frame::after{transform-origin:right center}
-  .hero[data-cinematic-intro] .frame-corner{
+  .hero[data-intro-state="playing"] .hero-frame::before{
+    transform-origin:left center;
+    animation:hero-frame-line 850ms linear 4400ms both;
+  }
+  .hero[data-intro-state="playing"] .hero-frame::after{
+    transform-origin:right center;
+    animation:hero-frame-line 850ms linear 3500ms both;
+  }
+  .hero[data-intro-state="playing"] .frame-corner{
     opacity:0;
-    animation:hero-frame-corner 520ms ease-out 3420ms both;
+    animation:hero-frame-corner 250ms ease-out 5250ms both;
   }
   @keyframes hero-stage-settle{
     from{inset:var(--hero-stage-open);border-radius:0;filter:brightness(1.12)}
     to{inset:var(--hero-stage-y) var(--hero-stage-x);border-radius:var(--radius-media);filter:brightness(1)}
   }
-  @keyframes hero-line-left{
-    from{opacity:0;transform:translateX(-72px);clip-path:inset(0 100% 0 0)}
-    to{opacity:1;transform:translateX(0);clip-path:inset(0 0 0 0)}
-  }
-  @keyframes hero-line-right{
-    from{opacity:0;transform:translateX(72px);clip-path:inset(0 0 0 100%)}
-    to{opacity:1;transform:translateX(0);clip-path:inset(0 0 0 0)}
-  }
+  @keyframes hero-overlay-settle{from{opacity:.45}to{opacity:1}}
   @keyframes hero-frame-line{to{transform:scaleX(1)}}
   @keyframes hero-frame-corner{
     from{opacity:0;clip-path:inset(50% 0 50% 0)}
@@ -244,117 +253,50 @@ body:has(.hero[data-cinematic-intro]){overflow-x:clip}
   }
 }
 
-/* On large screens the visitor directs the cinematic reveal with natural scroll. */
+/* Full-viewport opening on desktop settles into the original framed composition. */
 @media(min-width:851px) and (prefers-reduced-motion:no-preference){
-  @supports(animation-timeline:scroll()){
-    .hero[data-cinematic-intro]{
-      width:100%;
-      height:375svh;
-      min-height:0;
-      padding:0;
-      overflow:visible
-    }
-    .hero[data-cinematic-intro] .hero-frame{
-      --hero-final-gutter:max(var(--page-gutter),calc((100vw - var(--hero-max)) / 2));
-      --hero-final-x:calc(var(--hero-final-gutter) + ((100vw - (2 * var(--hero-final-gutter))) * .1));
-      --hero-copy-x:calc(var(--hero-final-gutter) + ((100vw - (2 * var(--hero-final-gutter))) * .053));
-      position:sticky;
-      top:0;
-      width:100%;
-      height:100svh
-    }
-    .hero[data-cinematic-intro] .hero-stage{
-      inset:0;
-      animation-name:hero-stage-scroll;
-      animation-duration:1ms;
-      animation-delay:0s;
-      animation-timing-function:linear;
-      animation-fill-mode:both;
-      animation-timeline:scroll(root block);
-      animation-range:0 150svh
-    }
-    .hero[data-cinematic-intro] .hero-line-top,
-    .hero[data-cinematic-intro] .hero-line-bottom{
-      animation-duration:1ms;
-      animation-delay:0s;
-      animation-timing-function:linear;
-      animation-fill-mode:both;
-      animation-timeline:scroll(root block);
-      animation-range:0 150svh
-    }
-    .hero[data-cinematic-intro] .hero-line-top{animation-name:hero-line-left-scroll}
-    .hero[data-cinematic-intro] .hero-line-bottom{animation-name:hero-line-right-scroll}
-    .hero[data-cinematic-intro] .hero-line-top{left:var(--hero-copy-x);top:232px}
-    .hero[data-cinematic-intro] .hero-line-bottom{right:var(--hero-copy-x);bottom:calc(100svh - 744px)}
-    .hero[data-cinematic-intro] .hero-frame::before,
-    .hero[data-cinematic-intro] .hero-frame::after{
-      left:var(--hero-final-gutter);
-      right:var(--hero-final-gutter);
-      animation-duration:1ms;
-      animation-delay:0s;
-      animation-timing-function:linear;
-      animation-fill-mode:both;
-      animation-timeline:scroll(root block);
-      animation-range:0 250svh
-    }
-    .hero[data-cinematic-intro] .hero-frame::before{
-      top:120px;
-      animation-name:hero-frame-line-scroll
-    }
-    .hero[data-cinematic-intro] .hero-frame::after{
-      bottom:calc(100svh - 856px);
-      animation-name:hero-frame-line-scroll
-    }
-    .hero[data-cinematic-intro] .frame-corner{
-      animation-name:hero-frame-corner-scroll;
-      animation-duration:1ms;
-      animation-delay:0s;
-      animation-timing-function:linear;
-      animation-fill-mode:both;
-      animation-timeline:scroll(root block);
-      animation-range:0 250svh
-    }
-    .hero[data-cinematic-intro] .frame-corner-tl,
-    .hero[data-cinematic-intro] .frame-corner-bl{left:var(--hero-final-gutter)}
-    .hero[data-cinematic-intro] .frame-corner-tr,
-    .hero[data-cinematic-intro] .frame-corner-br{right:var(--hero-final-gutter)}
-    .hero[data-cinematic-intro] .frame-corner-tl,
-    .hero[data-cinematic-intro] .frame-corner-tr{top:120px}
-    .hero[data-cinematic-intro] .frame-corner-bl,
-    .hero[data-cinematic-intro] .frame-corner-br{bottom:calc(100svh - 856px)}
-    .site-header{
-      mix-blend-mode:normal;
-      animation-name:hero-header-scroll;
-      animation-duration:1ms;
-      animation-timing-function:linear;
-      animation-fill-mode:both;
-      animation-timeline:scroll(root block);
-      animation-range:0 150svh
-    }
-    @keyframes hero-stage-scroll{
-      0%,10%{inset:0;border-radius:0;filter:brightness(1.12)}
-      46%,100%{inset:192px var(--hero-final-x) calc(100svh - 784px);border-radius:var(--radius-media);filter:brightness(1)}
-    }
-    @keyframes hero-line-left-scroll{
-      0%,50%{opacity:0;transform:translateX(-88px);clip-path:inset(0 100% 0 0)}
-      68%,100%{opacity:1;transform:none;clip-path:inset(0)}
-    }
-    @keyframes hero-line-right-scroll{
-      0%,72%{opacity:0;transform:translateX(88px);clip-path:inset(0 0 0 100%)}
-      90%,100%{opacity:1;transform:none;clip-path:inset(0)}
-    }
-    @keyframes hero-frame-line-scroll{
-      0%,72%{transform:scaleX(0)}
-      96%,100%{transform:scaleX(1)}
-    }
-    @keyframes hero-frame-corner-scroll{
-      0%,94%{opacity:0;clip-path:inset(50% 0)}
-      100%{opacity:1;clip-path:inset(0)}
-    }
-    @keyframes hero-header-scroll{
-      0%,26%{background-color:#08080845;border-color:transparent}
-      100%{background-color:#080808;border-color:transparent}
-    }
+  .hero[data-intro-state="playing"] .hero-frame{
+    --hero-stage-open:-120px calc(50% - 50vw) calc(856px - 100svh);
+  }
+  .hero[data-intro-state="playing"] .hero-stage{z-index:1}
+  .hero[data-intro-state="playing"] .hero-copy{z-index:2}
+  .site-header:has(~main .hero[data-intro-state="playing"]){
+    mix-blend-mode:normal;
+    background:transparent!important;
+    border-color:transparent;
+  }
+  .site-header:has(~main .hero[data-intro-state="playing"]) .wordmark{
+    transform-origin:center;
+    animation:hero-wordmark-settle 2400ms cubic-bezier(.45,0,.55,1) 1300ms both;
+  }
+  @keyframes hero-wordmark-settle{
+    from{transform:translateY(calc(50svh - 44px)) scale(3.5)}
+    to{transform:scaleX(1.08)}
+  }
+}
+@media(max-width:850px) and (prefers-reduced-motion:no-preference){
+  .site-header:has(~main .hero[data-intro-state="playing"]) .wordmark{
+    transform-origin:center;
+    animation:hero-wordmark-settle-mobile 2400ms cubic-bezier(.45,0,.55,1) 1300ms both;
+  }
+  @keyframes hero-wordmark-settle-mobile{
+    from{transform:translateY(calc(50svh - 40px)) scale(3.2)}
+    to{transform:scaleX(1.08)}
+  }
+}
+.site-header:has(~main .hero[data-intro-state="playing"]) :is(.nav-side,.languages,.menu-button){
+  opacity:0!important;
+  pointer-events:none;
+  transition:none!important;
+}
+.site-header:has(~main .hero[data-intro-state="playing"][data-intro-header="scrambling"]) :is(.nav-side,.languages){
+  opacity:1!important;
+  transition:opacity .4s ease!important;
+}
+.site-header .languages{transition:opacity .4s ease}
+@media(max-width:850px) and (prefers-reduced-motion:no-preference){
+  .hero[data-intro-state="playing"] .hero-frame{
+    --hero-stage-open:-96px calc(50% - 50vw) calc(100% + 96px - 100svh);
   }
 }
 
@@ -406,40 +348,44 @@ main [data-theme="dark"] .project-number{color:#eeede6}
 .contact-intro>.eyebrow{display:block;margin-bottom:42px;color:var(--muted)}
 .contact-intro h2{display:block;margin:0;font-family:'Instrument Sans Variable','Instrument Sans',sans-serif;font-size:clamp(54px,6vw,96px);font-weight:500;line-height:.96;letter-spacing:-.065em;color:var(--paper)}
 .contact-methods{display:grid;grid-template-columns:minmax(0,2fr) minmax(260px,.8fr);align-items:end;gap:clamp(56px,8vw,150px);padding:124px 0 16px;text-align:left}
-.contact-band{position:relative;min-width:0;width:max-content;max-width:100%;display:grid;grid-template-columns:minmax(0,auto) auto;justify-items:start;align-items:center;column-gap:15px;row-gap:20px;padding:0;background:transparent}
+.contact-band{position:relative;min-width:0;width:max-content;max-width:100%;display:grid;grid-template-columns:minmax(0,auto) var(--space-3);justify-items:start;align-items:center;column-gap:var(--space-2);row-gap:var(--space-3);padding:0;background:transparent}
 .contact-band>.eyebrow{grid-column:1/-1;color:var(--muted);transition:color .25s ease}
 .contact-band:is(:hover,:focus-visible)>.eyebrow{color:var(--paper)}
-.contact-band-arrow{grid-column:2;position:static;font-size:26px;line-height:1;opacity:0;transform:translate(-8px,8px);transition:opacity .25s ease,transform .4s cubic-bezier(.22,1,.36,1)}
+.contact-band-arrow{grid-column:2;grid-row:2;justify-self:end;align-self:center;position:static;font-size:26px;line-height:1;opacity:0;transform:translate(-8px,8px);transition:opacity .25s ease,transform .4s cubic-bezier(.22,1,.36,1)}
 .contact-band:is(:hover,:focus-visible) .contact-band-arrow{opacity:1;transform:translate(0)}
-.contact-value{font-family:'Instrument Sans Variable','Instrument Sans',sans-serif;font-weight:500;line-height:1.05;letter-spacing:-.025em}
+.contact-value{grid-column:1;grid-row:2;font-family:'Instrument Sans Variable','Instrument Sans',sans-serif;font-weight:500;line-height:1.05;letter-spacing:-.025em}
 .contact-email{font-size:clamp(25px,3vw,48px);overflow-wrap:anywhere}
 .contact-phone{font-size:clamp(25px,2.35vw,38px);white-space:nowrap}
-.site-footer{display:block;padding:0 max(var(--page-gutter),calc((100vw - var(--shell-max))/2));border-top:1px solid var(--line)}
-.footer-grid{display:grid;grid-template-columns:1.1fr .8fr 1.35fr .65fr;gap:clamp(35px,5vw,90px);padding:66px 0 76px}
-.site-footer .footer-brand{align-self:start;font-size:26px}
+.site-footer{display:block;padding:0 max(var(--page-gutter),calc((100% - var(--shell-max))/2));border-top:1px solid var(--line)}
+.footer-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(35px,5vw,90px);padding:66px 0 76px}
+.site-footer .footer-brand{align-self:start;font-size:34px}
 .footer-column{display:grid;align-content:start;justify-items:start;gap:11px;font-size:14px}
 .footer-column>.eyebrow{color:var(--muted);font-size:9px;margin-bottom:8px}
 .footer-column a{overflow-wrap:anywhere}
 .footer-column small{display:block;color:var(--muted);font:9px monospace;margin-top:4px}
+.footer-column:last-child{justify-items:end;text-align:right}
 .footer-bottom{border-top:1px solid var(--line);padding:25px 0 28px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:25px;color:var(--muted);font:9px monospace;text-transform:uppercase;letter-spacing:.08em}
 .footer-bottom span:nth-child(2){text-align:center}.footer-bottom a{text-align:right}
 @media(max-width:850px){
   .work,.about,.contact{padding-top:96px;padding-bottom:96px}
   .contact-intro>.eyebrow{margin-bottom:32px}
-  .contact-methods{grid-template-columns:1fr;padding-top:86px;gap:64px}
+  .contact-methods{grid-template-columns:minmax(0,1fr);padding-top:86px;gap:64px}
   .contact-email{font-size:clamp(22px,4.2vw,34px)}
   .contact-phone{font-size:clamp(27px,5vw,40px)}
   .footer-grid{grid-template-columns:1fr 1fr;row-gap:50px}
 }
+@media(min-width:851px){.contact-methods .contact-band:last-child{justify-self:end;justify-items:start;text-align:left}}
 @media(max-width:500px){
   .work,.about,.contact{padding-top:92px;padding-bottom:92px}
   .contact-intro>.eyebrow{margin-bottom:24px}
   .contact-intro h2{font-size:clamp(48px,15vw,68px)}
   .contact-methods{padding-top:70px;gap:58px}
   .contact-band-arrow{display:none}
+  .contact-band{grid-template-columns:minmax(0,1fr)}
   .contact-email{font-size:clamp(17px,5.2vw,23px);white-space:normal}
   .contact-phone{font-size:clamp(25px,7.5vw,33px)}
   .footer-grid{grid-template-columns:1fr;padding:48px 0 55px;gap:38px}
+  .footer-column:last-child{justify-items:start;text-align:left}
   .footer-bottom{grid-template-columns:1fr;gap:10px}.footer-bottom span:nth-child(2),.footer-bottom a{text-align:left}
 }
 
